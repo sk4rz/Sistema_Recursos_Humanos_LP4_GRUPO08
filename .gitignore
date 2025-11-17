@@ -1,0 +1,47 @@
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración local
+config/config.local.php
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales
+temp/
+*.tmp
+
+# Vendor (Composer)
+vendor/
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Archivos de reportes generados
+reports/*.pdf
+reports/*.html
+reports/*.csv
+
+# Archivos de sesión
+sessions/
+
+*.ts
+*.tsx
+*.jsx
+next.config.*
+tsconfig.json
+package.json
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+components.json
+postcss.config.*
+tailwind.config.*
+.next/
+node_modules/
