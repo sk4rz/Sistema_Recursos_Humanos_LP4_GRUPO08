@@ -2,6 +2,13 @@
 
 Sistema completo de gestión de recursos humanos desarrollado en **PHP 8.0+** con arquitectura **MVC**, **Bootstrap 5** y **MySQL/MariaDB**.
 
+## Integrantes del Grupo 08 - Lenguaje de Programación IV
+
+1. **Oscar Moreno Acosta**
+2. **Adrian Ayato Aniya Saldaña**
+3. **Juan Carlos Mitsva Llerena Zavaleta**
+4. **Manuel Antonio Iglesias Guevara**
+
 ## Instalación Rápida
 
 ### Opción 1: Instalación Automática (Recomendada)
