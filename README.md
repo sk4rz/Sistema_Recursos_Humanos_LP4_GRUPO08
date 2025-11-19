@@ -24,11 +24,19 @@ Sistema completo de gestión de recursos humanos desarrollado en **PHP 8.0+** co
 
 3. **Iniciar el servidor web:**
    
-   **Servidor PHP Integrado (Más fácil):**
+   **Servidor PHP Integrado (Recomendado):**
+   
+   Desde el directorio `public/`:
    ```bash
    cd public
    php -S localhost:8000
    ```
+   
+   O desde la raíz del proyecto:
+   ```bash
+   php -S localhost:8000 -t public
+   ```
+   
    Luego abre: `http://localhost:8000`
    
    **Apache (XAMPP/WAMP):**
@@ -89,56 +97,17 @@ define('DB_PASS', 'tu_contraseña');
 
 #### Paso 4: Configurar Servidor Web
 
-**Opción A: Servidor PHP Integrado (Recomendado para pruebas y desarrollo)**
+**Servidor PHP Integrado:**
+```bash
+cd public
+php -S localhost:8000
+```
+Abre: `http://localhost:8000`
 
-Esta es la opción más simple y funciona en cualquier máquina sin configuración adicional:
-
-1. Abre una terminal en la carpeta raíz del proyecto
-2. Ejecuta el siguiente comando:
-   ```bash
-   cd public
-   php -S localhost:8000
-   ```
-3. Abre tu navegador y accede a: `http://localhost:8000`
-4. El sistema funcionará correctamente sin configuración adicional
-
-**Nota:** Si cierras la terminal, el servidor se detendrá. Para mantenerlo corriendo, ejecuta el comando en una terminal separada.
-
-**Opción B: Apache (XAMPP/WAMP) - Para producción o uso continuo**
-
-1. **Copiar el proyecto:**
-   - **XAMPP:** Copia la carpeta `RRHH` a `C:\xampp\htdocs\`
-   - **WAMP:** Copia la carpeta `RRHH` a `C:\wamp64\www\`
-
-2. **Habilitar mod_rewrite (si no está habilitado):**
-   - Abre `httpd.conf` (generalmente en `C:\xampp\apache\conf\` o `C:\wamp64\bin\apache\apache2.x.x\conf\`)
-   - Busca la línea `#LoadModule rewrite_module modules/mod_rewrite.so`
-   - Quita el `#` al inicio para descomentarla: `LoadModule rewrite_module modules/mod_rewrite.so`
-   - Reinicia Apache
-
-3. **Acceder al sistema:**
-   - Abre tu navegador y accede a: `http://localhost/RRHH/public`
-   - El sistema detectará automáticamente la URL correcta
-
-**Opción C: Apache con Virtual Host (Opcional, para producción)**
-
-Si quieres acceder directamente a `http://localhost` sin `/RRHH/public`:
-
-1. Edita `httpd-vhosts.conf` (en `C:\xampp\apache\conf\extra\` o similar)
-2. Agrega:
-   ```apache
-   <VirtualHost *:80>
-       DocumentRoot "C:/xampp/htdocs/RRHH/public"
-       ServerName localhost
-       <Directory "C:/xampp/htdocs/RRHH/public">
-           Options Indexes FollowSymLinks
-           AllowOverride All
-           Require all granted
-       </Directory>
-   </VirtualHost>
-   ```
-3. Reinicia Apache
-4. Accede a: `http://localhost`
+**Apache (XAMPP/WAMP):**
+1. Copia el proyecto a `htdocs` (XAMPP) o `www` (WAMP)
+2. Habilitar `mod_rewrite` en `httpd.conf` si no está habilitado
+3. Accede a: `http://localhost/RRHH/public`
 
 ## Requisitos del Sistema
 
@@ -329,14 +298,17 @@ El sistema implementa las siguientes medidas de seguridad:
 **Solución:**
 
 1. **Si usas servidor PHP integrado:**
-   - Asegúrate de ejecutar el comando desde el directorio `public/`
+   - **IMPORTANTE:** El servidor debe ejecutarse desde el directorio `public/`
    - El comando correcto es: `cd public` y luego `php -S localhost:8000`
+   - O desde la raíz: `php -S localhost:8000 -t public`
    - Accede a `http://localhost:8000` (no a `http://localhost:8000/index.php`)
+   - Si ejecutas el servidor desde la raíz sin el flag `-t public`, obtendrás errores 404
 
 2. **Si usas Apache:**
    - Verifica que `mod_rewrite` esté habilitado (ver Paso 4, Opción B arriba)
    - Verifica que el archivo `.htaccess` esté presente en `public/`
    - Asegúrate de acceder a la URL correcta: `http://localhost/RRHH/public` (o la ruta donde copiaste el proyecto)
+   - O configura el DocumentRoot de Apache para que apunte directamente a la carpeta `public/`
 
 3. **Verificar que BASE_URL esté correcto:**
    - El sistema detecta automáticamente la BASE_URL
@@ -414,7 +386,6 @@ class MiController extends Controller {
 - **Nombres de variables**: camelCase (ej: `$employeeModel`)
 - **Archivos**: Mismo nombre que la clase (ej: `EmpleadoController.php`)
 - **Tablas de BD**: Español, plural (ej: `empleados`, `departamentos`)
-- **Comentarios**: En español, claros y concisos
 
 ## Licencia
 
@@ -425,5 +396,3 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 **Versión actual**: 1.0.0
 
 ---
-
-**Desarrollado para la gestión eficiente de recursos humanos**
