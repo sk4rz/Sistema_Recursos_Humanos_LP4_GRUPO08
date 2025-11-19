@@ -19,10 +19,23 @@ Sistema completo de gestión de recursos humanos desarrollado en **PHP 8.0+** co
    ```
 
 2. **Seguir las instrucciones en pantalla:**
-   - Ingresar datos de la base de datos
-   - El script creará todo automáticamente
+   - Ingresar datos de la base de datos (host, nombre, usuario, contraseña)
+   - El script creará la base de datos, importará el esquema y configurará todo automáticamente
 
-3. **Listo.** Abre tu navegador en la URL indicada
+3. **Iniciar el servidor web:**
+   
+   **Servidor PHP Integrado (Más fácil):**
+   ```bash
+   cd public
+   php -S localhost:8000
+   ```
+   Luego abre: `http://localhost:8000`
+   
+   **Apache (XAMPP/WAMP):**
+   - Copia el proyecto a `htdocs` (XAMPP) o `www` (WAMP)
+   - Accede a: `http://localhost/RRHH/public`
+
+4. **Listo.** El sistema detectará automáticamente la URL correcta
 
 ### Opción 2: Instalación Manual
 
@@ -63,28 +76,69 @@ mysql -u root -p rrhh_system < scripts/02-seed-data.sql
 
 #### Paso 3: Configurar la Aplicación
 
-Edita el archivo `config/config.php`:
+Edita el archivo `config/config.php` y configura solo las credenciales de la base de datos:
 
 ```php
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'rrhh_system');
 define('DB_USER', 'root');
 define('DB_PASS', 'tu_contraseña');
-define('BASE_URL', 'http://localhost:82/public');
 ```
+
+**IMPORTANTE:** No necesitas configurar `BASE_URL` manualmente. El sistema lo detecta automáticamente según la URL desde la que accedes.
 
 #### Paso 4: Configurar Servidor Web
 
-**Opción A: Servidor PHP Integrado (Recomendado para pruebas)**
-```bash
-cd public
-php -S localhost:8000
-```
+**Opción A: Servidor PHP Integrado (Recomendado para pruebas y desarrollo)**
 
-**Opción B: Apache (XAMPP/WAMP)**
-1. Copiar proyecto a `htdocs` (XAMPP) o `www` (WAMP)
-2. Verificar que `mod_rewrite` esté habilitado
-3. Acceder a `http://localhost/RRHH/public`
+Esta es la opción más simple y funciona en cualquier máquina sin configuración adicional:
+
+1. Abre una terminal en la carpeta raíz del proyecto
+2. Ejecuta el siguiente comando:
+   ```bash
+   cd public
+   php -S localhost:8000
+   ```
+3. Abre tu navegador y accede a: `http://localhost:8000`
+4. El sistema funcionará correctamente sin configuración adicional
+
+**Nota:** Si cierras la terminal, el servidor se detendrá. Para mantenerlo corriendo, ejecuta el comando en una terminal separada.
+
+**Opción B: Apache (XAMPP/WAMP) - Para producción o uso continuo**
+
+1. **Copiar el proyecto:**
+   - **XAMPP:** Copia la carpeta `RRHH` a `C:\xampp\htdocs\`
+   - **WAMP:** Copia la carpeta `RRHH` a `C:\wamp64\www\`
+
+2. **Habilitar mod_rewrite (si no está habilitado):**
+   - Abre `httpd.conf` (generalmente en `C:\xampp\apache\conf\` o `C:\wamp64\bin\apache\apache2.x.x\conf\`)
+   - Busca la línea `#LoadModule rewrite_module modules/mod_rewrite.so`
+   - Quita el `#` al inicio para descomentarla: `LoadModule rewrite_module modules/mod_rewrite.so`
+   - Reinicia Apache
+
+3. **Acceder al sistema:**
+   - Abre tu navegador y accede a: `http://localhost/RRHH/public`
+   - El sistema detectará automáticamente la URL correcta
+
+**Opción C: Apache con Virtual Host (Opcional, para producción)**
+
+Si quieres acceder directamente a `http://localhost` sin `/RRHH/public`:
+
+1. Edita `httpd-vhosts.conf` (en `C:\xampp\apache\conf\extra\` o similar)
+2. Agrega:
+   ```apache
+   <VirtualHost *:80>
+       DocumentRoot "C:/xampp/htdocs/RRHH/public"
+       ServerName localhost
+       <Directory "C:/xampp/htdocs/RRHH/public">
+           Options Indexes FollowSymLinks
+           AllowOverride All
+           Require all granted
+       </Directory>
+   </VirtualHost>
+   ```
+3. Reinicia Apache
+4. Accede a: `http://localhost`
 
 ## Requisitos del Sistema
 
@@ -273,9 +327,25 @@ El sistema implementa las siguientes medidas de seguridad:
 ### Error 404 en todas las rutas
 
 **Solución:**
-- Verifica que `mod_rewrite` esté habilitado (Apache)
-- Verifica que el archivo `.htaccess` esté presente en `public/`
-- Si usas servidor PHP integrado, asegúrate de estar en el directorio `public/`
+
+1. **Si usas servidor PHP integrado:**
+   - Asegúrate de ejecutar el comando desde el directorio `public/`
+   - El comando correcto es: `cd public` y luego `php -S localhost:8000`
+   - Accede a `http://localhost:8000` (no a `http://localhost:8000/index.php`)
+
+2. **Si usas Apache:**
+   - Verifica que `mod_rewrite` esté habilitado (ver Paso 4, Opción B arriba)
+   - Verifica que el archivo `.htaccess` esté presente en `public/`
+   - Asegúrate de acceder a la URL correcta: `http://localhost/RRHH/public` (o la ruta donde copiaste el proyecto)
+
+3. **Verificar que BASE_URL esté correcto:**
+   - El sistema detecta automáticamente la BASE_URL
+   - Si tienes problemas, puedes verificar temporalmente agregando esto al final de `config/config.php`:
+     ```php
+     // Solo para depuración - eliminar después
+     error_log("BASE_URL detectada: " . BASE_URL);
+     ```
+   - Revisa el log de errores de PHP para ver qué URL se detectó
 
 ### Problemas con tildes o caracteres especiales
 

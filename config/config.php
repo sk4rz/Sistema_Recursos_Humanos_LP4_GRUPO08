@@ -44,14 +44,60 @@ define('CORE_PATH', APP_PATH . '/core');                  // Carpeta de clases b
 // ============================================
 // URLs DEL SISTEMA
 // ============================================
-// BASE_URL: URL completa donde está instalado el sistema
-// IMPORTANTE: Debe terminar con /public
-// 
-// Ejemplos según tu configuración:
-// - Servidor PHP integrado: 'http://localhost:8000'
-// - XAMPP en Windows: 'http://localhost/RRHH/public'
-// - Servidor de producción: 'https://tudominio.com/public'
-define('BASE_URL', 'http://localhost:82/public');
+// BASE_URL: Se calcula automáticamente según la URL actual
+// Esto permite que el sistema funcione en cualquier máquina sin configuración manual
+if (!defined('BASE_URL')) {
+    // Detectar protocolo (http o https)
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    
+    // Detectar host
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    
+    // Obtener el directorio base del script
+    // $_SERVER['SCRIPT_NAME'] contiene la ruta del script actual (ej: /RRHH/public/index.php)
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/public/index.php';
+    
+    // Obtener el directorio del script (ej: /RRHH/public o /public)
+    $scriptDir = dirname($scriptName);
+    
+    // Normalizar: remover barras finales y asegurar que empiece con /
+    $scriptDir = rtrim($scriptDir, '/\\');
+    if (empty($scriptDir) || $scriptDir === '.') {
+        $scriptDir = '/public';
+    }
+    if (substr($scriptDir, 0, 1) !== '/') {
+        $scriptDir = '/' . $scriptDir;
+    }
+    
+    // Si estamos en el directorio raíz o no detectamos /public, asumir /public
+    // Esto es útil cuando se accede directamente a index.php sin la ruta completa
+    if (strpos($scriptDir, '/public') === false && strpos($scriptName, 'index.php') !== false) {
+        // Intentar detectar desde REQUEST_URI si está disponible
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        if (!empty($requestUri)) {
+            // Extraer la parte del path antes de los parámetros
+            $uriPath = parse_url($requestUri, PHP_URL_PATH);
+            if ($uriPath && strpos($uriPath, '/public') !== false) {
+                // Encontrar la posición de /public
+                $publicPos = strpos($uriPath, '/public');
+                $scriptDir = substr($uriPath, 0, $publicPos + 6); // +6 para incluir '/public'
+            } else {
+                $scriptDir = '/public';
+            }
+        } else {
+            $scriptDir = '/public';
+        }
+    }
+    
+    // Construir BASE_URL automáticamente
+    // Ejemplos:
+    // - http://localhost/public
+    // - http://localhost:8000/public
+    // - http://localhost/RRHH/public
+    $baseUrl = $protocol . '://' . $host . $scriptDir;
+    
+    define('BASE_URL', $baseUrl);
+}
 
 // URL para los archivos estáticos (CSS, JS, imágenes)
 define('ASSETS_URL', BASE_URL . '/assets');

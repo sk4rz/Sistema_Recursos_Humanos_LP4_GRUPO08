@@ -58,10 +58,6 @@ $db_user = empty($db_user) ? 'root' : $db_user;
 
 $db_pass = readline("Contraseña: ");
 
-echo "\n--- CONFIGURACIÓN DE URL ---\n";
-$base_url = readline("URL base del proyecto (presiona Enter para 'http://localhost:82/public'): ");
-$base_url = empty($base_url) ? 'http://localhost:82/public' : $base_url;
-
 echo "\n[OK] Intentando conectar a la base de datos...\n";
 
 try {
@@ -178,7 +174,36 @@ define('CONTROLLERS_PATH', APP_PATH . '/controllers');
 define('CORE_PATH', APP_PATH . '/core');
 
 // URLs del sistema
-define('BASE_URL', '$base_url');
+// BASE_URL se detecta automáticamente, no necesita configuración manual
+if (!defined('BASE_URL')) {
+    \$protocol = (!empty(\$_SERVER['HTTPS']) && \$_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    \$host = \$_SERVER['HTTP_HOST'] ?? 'localhost';
+    \$scriptName = \$_SERVER['SCRIPT_NAME'] ?? '/public/index.php';
+    \$scriptDir = dirname(\$scriptName);
+    \$scriptDir = rtrim(\$scriptDir, '/\\\\');
+    if (empty(\$scriptDir) || \$scriptDir === '.') {
+        \$scriptDir = '/public';
+    }
+    if (substr(\$scriptDir, 0, 1) !== '/') {
+        \$scriptDir = '/' . \$scriptDir;
+    }
+    if (strpos(\$scriptDir, '/public') === false && strpos(\$scriptName, 'index.php') !== false) {
+        \$requestUri = \$_SERVER['REQUEST_URI'] ?? '';
+        if (!empty(\$requestUri)) {
+            \$uriPath = parse_url(\$requestUri, PHP_URL_PATH);
+            if (\$uriPath && strpos(\$uriPath, '/public') !== false) {
+                \$publicPos = strpos(\$uriPath, '/public');
+                \$scriptDir = substr(\$uriPath, 0, \$publicPos + 6);
+            } else {
+                \$scriptDir = '/public';
+            }
+        } else {
+            \$scriptDir = '/public';
+        }
+    }
+    \$baseUrl = \$protocol . '://' . \$host . \$scriptDir;
+    define('BASE_URL', \$baseUrl);
+}
 define('ASSETS_URL', BASE_URL . '/assets');
 
 // Configuración de base de datos
@@ -242,13 +267,14 @@ echo "Credenciales de acceso:\n";
 echo "  Email: admin@example.com\n";
 echo "  Contrasena: password123\n\n";
 
-echo "URL del sistema: $base_url\n\n";
-
 echo "Proximos pasos:\n";
-echo "  1. Abre tu navegador y ve a: $base_url\n";
-echo "  2. Inicia sesion con las credenciales de arriba\n";
-echo "  3. Cambia las contrasenas por defecto\n";
-echo "  4. Configura los datos segun tus necesidades\n\n";
+echo "  1. Inicia el servidor web:\n";
+echo "     - Servidor PHP integrado: cd public && php -S localhost:8000\n";
+echo "     - Apache: Accede a http://localhost/RRHH/public\n";
+echo "  2. Abre tu navegador y accede a la URL indicada\n";
+echo "  3. Inicia sesion con las credenciales de arriba\n";
+echo "  4. Cambia las contrasenas por defecto\n";
+echo "  5. Configura los datos segun tus necesidades\n\n";
 
 echo "Listo para usar!\n";
 
